@@ -38,9 +38,6 @@ class App extends React.Component<Record<string, never>, MainState> {
       }
     )
       .then((response) => response.json())
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      })
       .then((data) => {
         this.setState({ data, loading: false });
       });
@@ -49,12 +46,6 @@ class App extends React.Component<Record<string, never>, MainState> {
   handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     this.setState({ searching: value });
-
-    if (value.trim() !== '') {
-      localStorage.setItem('searching', value);
-    } else {
-      localStorage.removeItem('searching');
-    }
   };
 
   handleSearchSubmit = () => {
@@ -68,7 +59,7 @@ class App extends React.Component<Record<string, never>, MainState> {
   };
 
   renderList = (data: AstronomicalObjects) => {
-    if (data.length === 0) return <div>Nothing found</div>;
+    if (!data.length) return <div>Nothing found</div>;
 
     return data.map((obj) => {
       return (
