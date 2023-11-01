@@ -1,8 +1,29 @@
-import { Component } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
-class ErrorBoundary extends Component {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    this.setState({ hasError: true });
+    console.error('Emulate error by ErrorBoundary:', error, errorInfo);
+  }
+
   render() {
-    return <div></div>;
+    if (this.state.hasError) {
+      return <div>Something went wrong. Please reload app.</div>;
+    }
+    return this.props.children;
   }
 }
 
