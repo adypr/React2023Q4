@@ -1,15 +1,18 @@
-import { Component } from 'react';
+import { useState } from 'react';
 
-import './ResultList.scss';
+const ResultList = () => {
+  const [results] = useState([]);
 
-class ResultList extends Component {
-  render() {
-    return (
-      <section className="results">
-        <h3>View list of results</h3>
-      </section>
-    );
-  }
-}
+  return (
+    <div>
+      <h1>Result List</h1>
+      <ul>
+        {results.map((result, index) => (
+          <li key={index}>{result}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export default ResultList;

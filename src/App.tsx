@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import Search from './components/Search';
 import './App.scss';
 
@@ -11,22 +11,18 @@ interface MainState {
   emulateError: boolean;
 }
 
-class App extends React.Component<Record<string, never>, MainState> {
-  state: MainState = {
+const App: React.FC = () => {
+  const [state, setState] = useState<MainState>({
     searching: localStorage.getItem('searching') || '',
     data: null,
     loading: false,
     emulateError: false,
-  };
+  });
 
-  componentDidMount() {
-    this.fetchData();
-  }
+  const fetchData = () => {
+    setState((prevState) => ({ ...prevState, loading: true }));
 
-  fetchData() {
-    this.setState({ loading: true });
-
-    const { searching } = this.state;
+    const { searching } = state;
 
     const queryString = searching.length > 0 ? `?name=${searching}` : '';
 
@@ -39,26 +35,26 @@ class App extends React.Component<Record<string, never>, MainState> {
     )
       .then((response) => response.json())
       .then((data) => {
-        this.setState({ data, loading: false });
+        setState((prevState) => ({ ...prevState, data, loading: false }));
       });
-  }
+  };
 
-  handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    this.setState({ searching: value });
+    setState((prevState) => ({ ...prevState, searching: value }));
   };
 
-  handleSearchSubmit = () => {
-    const { searching } = this.state;
+  const handleSearchSubmit = () => {
+    const { searching } = state;
     localStorage.setItem('searching', searching);
-    this.fetchData();
+    fetchData();
   };
 
-  handleThrowError = () => {
-    this.setState({ emulateError: true });
+  const handleThrowError = () => {
+    setState((prevState) => ({ ...prevState, emulateError: true }));
   };
 
-  renderList = (data: AstronomicalObjects) => {
+  const renderList = (data: AstronomicalObjects) => {
     if (!data.length) return <div>Nothing found</div>;
 
     return data.map((obj) => {
@@ -74,39 +70,39 @@ class App extends React.Component<Record<string, never>, MainState> {
     });
   };
 
-  render() {
-    const { searching, data, loading, emulateError } = this.state;
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    if (emulateError) {
-      throw new Error('Emulate error!');
-    }
+  const { searching, data, loading, emulateError } = state;
 
-    return (
-      <>
-        <header>
-          <h1>Star Treck</h1>
-          <h2>Astronomical Objects</h2>
-          <div className="buttons">
-            <Search
-              searching={searching}
-              onSearchChange={this.handleSearchChange}
-              onSearchSubmit={this.handleSearchSubmit}
-            />
-            <button onClick={this.handleThrowError}>Emulate Error</button>
-          </div>
-        </header>
-        <main>
-          {loading && <div>Loading...</div>}
-          <div className="card-list">
-            {data && !loading && (
-              <>{this.renderList(data.astronomicalObjects)}</>
-            )}
-          </div>
-        </main>
-        <footer className="footer">The Rolling Scopes School, 2023</footer>
-      </>
-    );
+  if (emulateError) {
+    throw new Error('Emulate error!');
   }
-}
+
+  return (
+    <>
+      <header>
+        <h1>Star Treck</h1>
+        <h2>Astronomical Objects</h2>
+        <div className="buttons">
+          <Search
+            searching={searching}
+            onSearchChange={handleSearchChange}
+            onSearchSubmit={handleSearchSubmit}
+          />
+          <button onClick={handleThrowError}>Emulate Error</button>
+        </div>
+      </header>
+      <main>
+        {loading && <div>Loading...</div>}
+        <div className="card-list">
+          {data && !loading && <>{renderList(data.astronomicalObjects)}</>}
+        </div>
+      </main>
+      <footer className="footer">The Rolling Scopes School, 2023</footer>
+    </>
+  );
+};
 
 export default App;
